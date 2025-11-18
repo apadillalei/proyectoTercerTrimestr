@@ -22,7 +22,7 @@ public class Data {
         diccionarios = new ArrayList<>();
     }
 
-    // ====== GETTERS ======
+
 
     public List<Usuario> getUsuarios() {
         return usuarios;
