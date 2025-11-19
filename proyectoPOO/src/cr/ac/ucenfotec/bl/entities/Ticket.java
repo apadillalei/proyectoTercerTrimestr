@@ -1,8 +1,10 @@
 package cr.ac.ucenfotec.bl.entities;
 
-public class Ticket extends EntidadBase {
+public class Ticket {
+
     private static int SEQ = 1;
 
+    private int id;
     private String asunto;
     private String descripcion;
     private String estado;
@@ -20,15 +22,29 @@ public class Ticket extends EntidadBase {
         this.departamento = departamento;
     }
 
-    public Ticket(){}
+    public int getId() {
+        return id;
+    }
 
-    public int getId() { return id; }
-    public String getAsunto() { return asunto; }
-    public String getDescripcion() { return descripcion; }
-    public String getEstado() { return estado; }
-    public Usuario getUsuario() { return usuario; }
-    public Departamento getDepartamento() { return departamento; }
+    public String getAsunto() {
+        return asunto;
+    }
 
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public Departamento getDepartamento() {
+        return departamento;
+    }
 
     public void setEstado(String estado) {
         this.estado = estado;

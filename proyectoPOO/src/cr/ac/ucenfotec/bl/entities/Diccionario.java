@@ -3,8 +3,9 @@ package cr.ac.ucenfotec.bl.entities;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Diccionario extends EntidadBase {
+public class Diccionario {
 
+    private int id;
     private String tipo;
     private List<Palabra> palabras;
 
@@ -13,7 +14,15 @@ public class Diccionario extends EntidadBase {
         this.palabras = new ArrayList<>();
     }
 
-    public Diccionario(){}
+    // Getters y setters
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getTipo() {
         return tipo;
@@ -24,7 +33,7 @@ public class Diccionario extends EntidadBase {
     }
 
     public List<Palabra> getPalabras() {
-        return palabras;  // lista modificable, usada por Gestor
+        return palabras;
     }
 
     public void setPalabras(List<Palabra> palabras) {

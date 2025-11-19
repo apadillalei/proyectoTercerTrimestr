@@ -21,9 +21,7 @@ public class Data {
         tickets = new ArrayList<>();
         diccionarios = new ArrayList<>();
     }
-
-
-
+    
     public List<Usuario> getUsuarios() {
         return usuarios;
     }

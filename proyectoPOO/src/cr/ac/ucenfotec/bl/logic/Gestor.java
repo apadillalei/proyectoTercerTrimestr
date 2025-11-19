@@ -12,7 +12,11 @@ import java.util.List;
 public class Gestor {
 
     private Data data;
+
+    // Contadores para asignar IDs en memoria
     private int contadorUsuario = 1;
+    private int contadorDepartamento = 1;
+    private int contadorDiccionario = 1;
 
     public Gestor() {
         data = new Data();
@@ -51,6 +55,9 @@ public class Gestor {
     // ================== DEPARTAMENTO ==================
 
     public void guardarDepartamento(Departamento d) {
+        if (d.getId() == 0) {
+            d.setId(contadorDepartamento++);
+        }
         data.getDepartamentos().add(d);
     }
 
@@ -68,6 +75,7 @@ public class Gestor {
     // ================== TICKET ==================
 
     public void guardarTicket(Ticket t) {
+        // Ticket ya se crea con id interno (SEQ en la clase Ticket)
         data.getTickets().add(t);
     }
 
@@ -85,6 +93,9 @@ public class Gestor {
     // ================== DICCIONARIO ==================
 
     public void guardarDiccionario(Diccionario d) {
+        if (d.getId() == 0) {
+            d.setId(contadorDiccionario++);
+        }
         data.getDiccionarios().add(d);
     }
 
@@ -98,7 +109,6 @@ public class Gestor {
         }
         return null;
     }
-
 
     public void agregarPalabraADiccionario(Diccionario dic, Palabra p) {
         dic.getPalabras().add(p);
