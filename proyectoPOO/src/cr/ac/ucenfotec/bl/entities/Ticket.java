@@ -127,4 +127,17 @@ public class Ticket {
                 ", depto=" + (departamento == null ? "-" : departamento.getNombre()) +
                 '}';
     }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Ticket other = (Ticket) obj;
+        return this.id == other.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
+    }
+
 }

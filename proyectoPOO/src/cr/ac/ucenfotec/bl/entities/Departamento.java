@@ -131,4 +131,17 @@ public class Departamento {
     public String toString() {
         return "[" + id + "] " + nombre + " - " + correoContacto;
     }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Departamento other = (Departamento) obj;
+        return this.id == other.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
+    }
+
 }

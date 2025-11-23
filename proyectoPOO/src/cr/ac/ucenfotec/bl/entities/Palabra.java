@@ -61,4 +61,21 @@ public class Palabra {
     public String toString() {
         return texto + " (" + categoria + ")";
     }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Palabra other = (Palabra) obj;
+
+        return texto != null && texto.equalsIgnoreCase(other.texto)
+                && categoria != null && categoria.equalsIgnoreCase(other.categoria);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (texto == null) ? 0 : texto.toLowerCase().hashCode();
+        result = 31 * result + ((categoria == null) ? 0 : categoria.toLowerCase().hashCode());
+        return result;
+    }
+
 }
