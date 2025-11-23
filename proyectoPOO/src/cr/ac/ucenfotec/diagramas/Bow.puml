@@ -1,0 +1,26 @@
+@startuml
+actor Usuario
+
+participant MenuTicket
+participant Controller
+participant Gestor
+participant Data
+participant AnalisisBoW
+
+Usuario -> MenuTicket : escribirDescripcion(descripcion)
+MenuTicket -> Controller : analizarTexto(descripcion)
+
+Controller -> Gestor : procesarAnalisis(descripcion)
+Gestor -> Data : obtenerDiccionario("emocional")
+Data --> Gestor : diccionarioEmocional
+
+Gestor -> Data : obtenerDiccionario("tecnico")
+Data --> Gestor : diccionarioTecnico
+
+Gestor -> AnalisisBoW : analizar(descripcion,\n diccionarioEmocional,\n diccionarioTecnico)
+AnalisisBoW --> Gestor : resultadoAnalisis
+
+Gestor --> Controller : devolverResultado(resultadoAnalisis)
+Controller --> MenuTicket : mostrarResultado(resultadoAnalisis)
+MenuTicket --> Usuario : mostrar clasificación
+@enduml
