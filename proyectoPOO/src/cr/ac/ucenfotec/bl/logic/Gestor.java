@@ -8,6 +8,22 @@ import cr.ac.ucenfotec.bl.entities.Usuario;
 import cr.ac.ucenfotec.dl.Data;
 
 import java.util.List;
+/**
+ * Clase que concentra la lógica de negocio del sistema HelpDesk U.
+ *
+ * El {@code Gestor} se encarga de coordinar la creación, almacenamiento,
+ * búsqueda y administración de entidades como Usuarios, Departamentos,
+ * Tickets y Diccionarios. Para almacenar los datos utiliza la clase
+ * {@link cr.ac.ucenfotec.dl.Data}.
+ *
+ * También administra la asignación de identificadores incrementales para
+ * Usuarios, Departamentos y Diccionarios, manteniendo el control del estado
+ * del sistema mientras se ejecuta en memoria.
+ *
+ * Esta clase es utilizada únicamente por el Controller en la capa de UI,
+ * garantizando así una correcta separación de responsabilidades dentro
+ * de la arquitectura del proyecto.
+ */
 
 public class Gestor {
 
