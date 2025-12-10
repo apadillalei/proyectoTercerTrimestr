@@ -1,0 +1,19 @@
+@startuml
+actor Usuario
+
+participant MenuTicket
+participant Controller
+participant Gestor
+participant Data
+
+Usuario -> MenuTicket : seleccionarRegistrarTicket()
+MenuTicket -> Controller : registrarTicket(titulo, desc, estado, usuarioId, deptoId)
+
+Controller -> Gestor : registrarTicket(...)
+Gestor -> Data : guardarTicket(ticket)
+Data --> Gestor : confirmación
+
+Gestor --> Controller : ticketRegistrado
+Controller --> MenuTicket : mostrarMensaje("Ticket registrado correctamente")
+MenuTicket --> Usuario : mostrar confirmación
+@enduml

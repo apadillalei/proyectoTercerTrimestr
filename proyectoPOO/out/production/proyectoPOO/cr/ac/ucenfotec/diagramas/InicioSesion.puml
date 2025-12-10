@@ -1,0 +1,13 @@
+@startuml
+actor Usuario
+participant "MenuAutenticacion" as Menu
+
+Usuario -> Menu: Ingresar correo y contraseña
+Menu -> Controller: validarLogin(correo, pass)
+Controller -> Gestor: login(correo,pass)
+Gestor -> Data: buscar en lista de usuarios
+Data --> Gestor: usuario encontrado / null
+Gestor --> Controller: resultado
+Controller --> Menu: usuario valido / no valido
+Menu --> Usuario: mostrar mensaje
+@enduml

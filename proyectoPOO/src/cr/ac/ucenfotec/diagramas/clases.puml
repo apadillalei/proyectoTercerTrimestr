@@ -1,0 +1,56 @@
+@startuml
+title Diagrama de Secuencia - Análisis Bag of Words (BoW)
+
+/'
+ Solo objetos de negocio:
+ Usuario, Gestor, AnalisisBoW, Diccionarios y Ticket.
+ No se muestran clases de UI ni de arquitectura.
+'/
+
+
+actor Usuario
+
+participant "Gestor" as G
+participant "AnalisisBoW" as BoW
+participant "Diccionario emocional" as DicE
+participant "Diccionario técnico" as DicT
+participant "Ticket" as T
+
+== Registro del ticket ==
+
+Usuario -> G : registrarTicket(asunto, descripcion, estado,\n idUsuario, idDepartamento)
+activate G
+
+' (internamente el Gestor crearía el Ticket; aquí simplificamos el foco en BoW)
+
+== Preparación de análisis ==
+
+G -> DicE : obtenerPalabrasEmocionales()
+activate DicE
+DicE --> G : listaPalabrasEmocionales
+deactivate DicE
+
+G -> DicT : obtenerPalabrasTecnicas()
+activate DicT
+DicT --> G : listaPalabrasTecnicas
+deactivate DicT
+
+== Análisis de texto con BoW ==
+
+G -> BoW : analizar(descripcion,\n listaPalabrasEmocionales,\n listaPalabrasTecnicas)
+activate BoW
+BoW --> G : resultadoAnalisis
+deactivate BoW
+
+== Actualización del ticket ==
+
+G -> T : setClasificacion(resultadoAnalisis)
+activate T
+T --> G : confirmacion
+deactivate T
+
+G --> Usuario : informeResultado()
+
+deactivate G
+
+@enduml
