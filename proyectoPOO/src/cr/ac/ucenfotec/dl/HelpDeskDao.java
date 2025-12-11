@@ -13,18 +13,9 @@ import java.util.List;
 /**
  * DAO general del sistema HelpDesk U.
  *
- * <p>Esta clase reemplaza el antiguo almacenamiento en memoria (Data)
+ * Esta clase reemplaza el antiguo almacenamiento en memoria (Data)
  * y se encarga de realizar las operaciones CRUD contra la base de datos
- * SQL Server para las entidades de dominio:
- * {@link Usuario}, {@link Departamento}, {@link Ticket},
- * {@link Diccionario} y {@link Palabra}.</p>
- *
- * <p>La obtención de la conexión se delega a la clase de utilidad
- * {@code ConexionSQLServer}, que debe exponer un método estático
- * {@code obtenerConexion()} que retorne un {@link Connection} válido.</p>
- *
- * <p><b>Nota:</b> Los nombres de tablas y columnas usados en las sentencias
- * SQL son de ejemplo y deben ajustarse al esquema real de la base de datos.</p>
+ * SQL Server para las entidades de dominio.
  */
 public class HelpDeskDao {
 
@@ -34,8 +25,6 @@ public class HelpDeskDao {
 
     /**
      * Inserta un nuevo usuario en la base de datos.
-     *
-     * @param u usuario a registrar.
      */
     public void insertarUsuario(Usuario u) {
         String sql = "INSERT INTO Usuarios (nombre, correo, password, telefono, rol) " +
@@ -53,14 +42,11 @@ public class HelpDeskDao {
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-            // En un proyecto real: registrar en log o lanzar excepción propia.
         }
     }
 
     /**
-     * Obtiene todos los usuarios registrados en la base de datos.
-     *
-     * @return lista de usuarios.
+     * Obtiene todos los usuarios registrados.
      */
     public List<Usuario> listarUsuarios() {
         List<Usuario> lista = new ArrayList<>();
@@ -91,10 +77,7 @@ public class HelpDeskDao {
     }
 
     /**
-     * Busca un usuario por su identificador.
-     *
-     * @param id identificador del usuario.
-     * @return usuario encontrado o {@code null} si no existe.
+     * Busca un usuario por su id.
      */
     public Usuario buscarUsuarioPorId(int id) {
         String sql = "SELECT idUsuario, nombre, correo, password, telefono, rol " +
@@ -125,11 +108,7 @@ public class HelpDeskDao {
     }
 
     /**
-     * Busca un usuario utilizando sus credenciales de acceso.
-     *
-     * @param correo   correo electrónico.
-     * @param password contraseña.
-     * @return usuario autenticado o {@code null} si las credenciales no coinciden.
+     * Busca un usuario utilizando sus credenciales de acceso (login).
      */
     public Usuario buscarUsuarioPorCredenciales(String correo, String password) {
         String sql = "SELECT idUsuario, nombre, correo, password, telefono, rol " +
@@ -160,15 +139,81 @@ public class HelpDeskDao {
         return null;
     }
 
+    /**
+     * Busca un usuario solo por su correo (validar duplicados).
+     */
+    public Usuario buscarUsuarioPorCorreo(String correo) {
+        String sql = "SELECT idUsuario, nombre, correo, password, telefono, rol " +
+                "FROM Usuarios WHERE correo = ?";
+
+        try (Connection conn = ConexionSQLServer.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, correo);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Usuario(
+                            rs.getInt("idUsuario"),
+                            rs.getString("nombre"),
+                            rs.getString("correo"),
+                            rs.getString("password"),
+                            rs.getString("telefono"),
+                            rs.getString("rol")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Actualiza los datos de un usuario.
+     */
+    public void actualizarUsuario(Usuario u) {
+        String sql = "UPDATE Usuarios " +
+                "SET nombre = ?, correo = ?, password = ?, telefono = ?, rol = ? " +
+                "WHERE idUsuario = ?";
+
+        try (Connection conn = ConexionSQLServer.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, u.getNombre());
+            ps.setString(2, u.getCorreo());
+            ps.setString(3, u.getPassword());
+            ps.setString(4, u.getTelefono());
+            ps.setString(5, u.getRol());
+            ps.setInt(6, u.getId());
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Elimina un usuario por su id.
+     */
+    public void eliminarUsuario(int idUsuario) {
+        String sql = "DELETE FROM Usuarios WHERE idUsuario = ?";
+
+        try (Connection conn = ConexionSQLServer.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, idUsuario);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     // =========================================================
     // DEPARTAMENTOS
     // =========================================================
 
-    /**
-     * Inserta un nuevo departamento en la base de datos.
-     *
-     * @param d departamento a registrar.
-     */
     public void insertarDepartamento(Departamento d) {
         String sql = "INSERT INTO Departamentos (nombre, descripcion, correoContacto) " +
                 "VALUES (?, ?, ?)";
@@ -186,15 +231,10 @@ public class HelpDeskDao {
         }
     }
 
-    /**
-     * Devuelve todos los departamentos almacenados.
-     *
-     * @return lista de departamentos.
-     */
     public List<Departamento> listarDepartamentos() {
         List<Departamento> lista = new ArrayList<>();
 
-        String sql = "SELECT idDepto, nombre, descripcion, correoContacto " +
+        String sql = "SELECT idDepartamento, nombre, descripcion, correoContacto " +
                 "FROM Departamentos";
 
         try (Connection conn = ConexionSQLServer.obtenerConexion();
@@ -207,7 +247,7 @@ public class HelpDeskDao {
                         rs.getString("descripcion"),
                         rs.getString("correoContacto")
                 );
-                d.setId(rs.getInt("idDepto"));
+                d.setId(rs.getInt("idDepartamento"));
                 lista.add(d);
             }
         } catch (SQLException e) {
@@ -217,15 +257,9 @@ public class HelpDeskDao {
         return lista;
     }
 
-    /**
-     * Busca un departamento por su identificador.
-     *
-     * @param id identificador del departamento.
-     * @return departamento encontrado o {@code null} si no existe.
-     */
     public Departamento buscarDepartamentoPorId(int id) {
-        String sql = "SELECT idDepto, nombre, descripcion, correoContacto " +
-                "FROM Departamentos WHERE idDepto = ?";
+        String sql = "SELECT idDepartamento, nombre, descripcion, correoContacto " +
+                "FROM Departamentos WHERE idDepartamento = ?";
 
         try (Connection conn = ConexionSQLServer.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -239,7 +273,7 @@ public class HelpDeskDao {
                             rs.getString("descripcion"),
                             rs.getString("correoContacto")
                     );
-                    d.setId(rs.getInt("idDepto"));
+                    d.setId(rs.getInt("idDepartamento"));
                     return d;
                 }
             }
@@ -250,21 +284,44 @@ public class HelpDeskDao {
         return null;
     }
 
+    public void actualizarDepartamento(Departamento d) {
+        String sql = "UPDATE Departamentos " +
+                "SET nombre = ?, descripcion = ?, correoContacto = ? " +
+                "WHERE idDepartamento = ?";
+
+        try (Connection conn = ConexionSQLServer.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, d.getNombre());
+            ps.setString(2, d.getDescripcion());
+            ps.setString(3, d.getCorreoContacto());
+            ps.setInt(4, d.getId());
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void eliminarDepartamento(int idDepartamento) {
+        String sql = "DELETE FROM Departamentos WHERE idDepartamento = ?";
+
+        try (Connection conn = ConexionSQLServer.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, idDepartamento);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     // =========================================================
     // TICKETS
     // =========================================================
 
-    /**
-     * Inserta un nuevo ticket en la base de datos.
-     *
-     * <p>La entidad {@link Ticket} recibe el {@link Usuario} y el
-     * {@link Departamento} ya cargados desde la capa de negocio.
-     * Aquí solo se usan sus IDs para guardar el registro.</p>
-     *
-     * @param t ticket a registrar.
-     */
     public void insertarTicket(Ticket t) {
-        String sql = "INSERT INTO Tickets (asunto, descripcion, estado, idUsuario, idDepto) " +
+        String sql = "INSERT INTO Tickets (asunto, descripcion, estado, idUsuario, idDepartamento) " +
                 "VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = ConexionSQLServer.obtenerConexion();
@@ -276,18 +333,12 @@ public class HelpDeskDao {
             ps.setInt(4, t.getUsuario().getId());
             ps.setInt(5, t.getDepartamento().getId());
 
-            ps.executeUpdate();   // No intentamos setear el id en la entidad.
+            ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * Lista todos los tickets registrados, incluyendo los datos
-     * básicos del usuario y del departamento asociados.
-     *
-     * @return lista de tickets.
-     */
     public List<Ticket> listarTickets() {
         List<Ticket> lista = new ArrayList<>();
 
@@ -295,10 +346,10 @@ public class HelpDeskDao {
                 "SELECT " +
                         "  t.idTicket, t.asunto, t.descripcion, t.estado, " +
                         "  u.idUsuario, u.nombre AS nombreUsuario, u.correo, u.password, u.telefono, u.rol, " +
-                        "  d.idDepto, d.nombre AS nombreDepto, d.descripcion, d.correoContacto " +
+                        "  d.idDepartamento, d.nombre AS nombreDepto, d.descripcion, d.correoContacto " +
                         "FROM Tickets t " +
                         "JOIN Usuarios u ON t.idUsuario = u.idUsuario " +
-                        "JOIN Departamentos d ON t.idDepto = d.idDepto";
+                        "JOIN Departamentos d ON t.idDepartamento = d.idDepartamento";
 
         try (Connection conn = ConexionSQLServer.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -306,7 +357,6 @@ public class HelpDeskDao {
 
             while (rs.next()) {
 
-                // Construimos el usuario asociado al ticket
                 Usuario u = new Usuario(
                         rs.getInt("idUsuario"),
                         rs.getString("nombreUsuario"),
@@ -316,15 +366,13 @@ public class HelpDeskDao {
                         rs.getString("rol")
                 );
 
-                // Construimos el departamento asociado
                 Departamento d = new Departamento(
                         rs.getString("nombreDepto"),
                         rs.getString("descripcion"),
                         rs.getString("correoContacto")
                 );
-                d.setId(rs.getInt("idDepto"));
+                d.setId(rs.getInt("idDepartamento"));
 
-                // Construimos el ticket usando tu constructor actual
                 Ticket t = new Ticket(
                         rs.getString("asunto"),
                         rs.getString("descripcion"),
@@ -333,9 +381,6 @@ public class HelpDeskDao {
                         d
                 );
 
-                // OJO: el id interno del Ticket se genera con SEQ.
-                // Si algún día quieres que coincida con idTicket,
-                // habría que agregar setId(int) en la entidad.
                 lista.add(t);
             }
         } catch (SQLException e) {
@@ -345,15 +390,37 @@ public class HelpDeskDao {
         return lista;
     }
 
+    public void actualizarEstadoTicket(int idTicket, String nuevoEstado) {
+        String sql = "UPDATE Tickets SET estado = ? WHERE idTicket = ?";
+
+        try (Connection conn = ConexionSQLServer.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, nuevoEstado);
+            ps.setInt(2, idTicket);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void eliminarTicket(int idTicket) {
+        String sql = "DELETE FROM Tickets WHERE idTicket = ?";
+
+        try (Connection conn = ConexionSQLServer.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, idTicket);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     // =========================================================
     // DICCIONARIOS
     // =========================================================
 
-    /**
-     * Inserta un nuevo diccionario en la base de datos.
-     *
-     * @param d diccionario a registrar.
-     */
     public void insertarDiccionario(Diccionario d) {
         String sql = "INSERT INTO Diccionarios (tipo) VALUES (?)";
 
@@ -367,11 +434,6 @@ public class HelpDeskDao {
         }
     }
 
-    /**
-     * Lista todos los diccionarios existentes.
-     *
-     * @return lista de diccionarios.
-     */
     public List<Diccionario> listarDiccionarios() {
         List<Diccionario> lista = new ArrayList<>();
 
@@ -397,12 +459,6 @@ public class HelpDeskDao {
     // PALABRAS
     // =========================================================
 
-    /**
-     * Inserta una palabra asociada a un diccionario.
-     *
-     * @param p             palabra a registrar.
-     * @param idDiccionario identificador del diccionario al que pertenece.
-     */
     public void insertarPalabra(Palabra p, int idDiccionario) {
         String sql = "INSERT INTO Palabras (texto, categoria, idDiccionario) " +
                 "VALUES (?, ?, ?)";
@@ -420,12 +476,6 @@ public class HelpDeskDao {
         }
     }
 
-    /**
-     * Lista todas las palabras pertenecientes a un diccionario.
-     *
-     * @param idDiccionario identificador del diccionario.
-     * @return lista de palabras asociadas.
-     */
     public List<Palabra> listarPalabrasPorDiccionario(int idDiccionario) {
         List<Palabra> lista = new ArrayList<>();
 

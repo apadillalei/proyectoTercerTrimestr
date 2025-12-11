@@ -8,14 +8,8 @@ import java.util.List;
 /**
  * Clase que concentra la lógica de negocio del sistema HelpDesk U.
  *
- * <p>El {@code Gestor} coordina la creación y administración de las
- * entidades del dominio, delegando el acceso a datos al
- * {@link HelpDeskDao}. De esta forma, la capa de UI nunca interactúa
- * directamente con SQL ni con la base de datos.</p>
- *
- * <p>Las reglas de negocio (por ejemplo, validaciones sencillas) deben
- * ubicarse en esta clase, manteniendo a la UI como una capa estrictamente
- * de presentación.</p>
+ * El {@code Gestor} coordina la creación y administración de las
+ * entidades del dominio, delegando el acceso a datos al {@link HelpDeskDao}.
  */
 public class Gestor {
 
@@ -24,8 +18,8 @@ public class Gestor {
     /**
      * Constructor por defecto.
      *
-     * <p>Inicializa la instancia del DAO que será utilizada para todas las
-     * operaciones de persistencia.</p>
+     * Inicializa la instancia del DAO que será utilizada para todas las
+     * operaciones de persistencia.
      */
     public Gestor() {
         this.dao = new HelpDeskDao();
@@ -37,27 +31,29 @@ public class Gestor {
 
     /**
      * Registra un nuevo usuario a partir de los datos básicos.
+     * Valida que el correo sea único.
      *
-     * @param nombre   nombre completo del usuario.
-     * @param correo   correo electrónico (también usado como login).
-     * @param password contraseña para el inicio de sesión.
-     * @param telefono teléfono de contacto.
-     * @param rol      rol que desempeña en el sistema.
+     * @return true si se registró, false si el correo ya existe.
      */
-    public void registrarUsuario(String nombre,
-                                 String correo,
-                                 String password,
-                                 String telefono,
-                                 String rol) {
+    public boolean registrarUsuario(String nombre,
+                                    String correo,
+                                    String password,
+                                    String telefono,
+                                    String rol) {
+
+        // Validar correo único
+        Usuario existente = dao.buscarUsuarioPorCorreo(correo);
+        if (existente != null) {
+            return false; // ya existe ese correo
+        }
 
         Usuario u = new Usuario(nombre, correo, password, telefono, rol);
         dao.insertarUsuario(u);
+        return true;
     }
 
     /**
      * Obtiene la lista completa de usuarios registrados.
-     *
-     * @return lista de {@link Usuario}.
      */
     public List<Usuario> listarUsuarios() {
         return dao.listarUsuarios();
@@ -65,9 +61,6 @@ public class Gestor {
 
     /**
      * Busca un usuario por su identificador.
-     *
-     * @param id identificador del usuario.
-     * @return usuario encontrado o {@code null} si no existe.
      */
     public Usuario buscarUsuarioPorId(int id) {
         return dao.buscarUsuarioPorId(id);
@@ -75,10 +68,6 @@ public class Gestor {
 
     /**
      * Intenta autenticar un usuario con correo y contraseña.
-     *
-     * @param correo   correo ingresado.
-     * @param password contraseña ingresada.
-     * @return usuario autenticado o {@code null} si las credenciales no son válidas.
      */
     public Usuario login(String correo, String password) {
         return dao.buscarUsuarioPorCredenciales(correo, password);
@@ -88,13 +77,6 @@ public class Gestor {
     // DEPARTAMENTOS
     // =========================================================
 
-    /**
-     * Registra un nuevo departamento.
-     *
-     * @param nombre         nombre del departamento.
-     * @param descripcion    breve descripción de sus funciones.
-     * @param correoContacto correo de contacto del departamento.
-     */
     public void registrarDepartamento(String nombre,
                                       String descripcion,
                                       String correoContacto) {
@@ -103,21 +85,10 @@ public class Gestor {
         dao.insertarDepartamento(d);
     }
 
-    /**
-     * Lista todos los departamentos registrados.
-     *
-     * @return lista de {@link Departamento}.
-     */
     public List<Departamento> listarDepartamentos() {
         return dao.listarDepartamentos();
     }
 
-    /**
-     * Busca un departamento por su id.
-     *
-     * @param id identificador del departamento.
-     * @return departamento encontrado o {@code null} si no existe.
-     */
     public Departamento buscarDepartamentoPorId(int id) {
         return dao.buscarDepartamentoPorId(id);
     }
@@ -126,15 +97,6 @@ public class Gestor {
     // TICKETS
     // =========================================================
 
-    /**
-     * Registra un nuevo ticket asociado a un usuario y un departamento.
-     *
-     * @param asunto         asunto o título del ticket.
-     * @param descripcion    descripción del problema.
-     * @param estado         estado inicial del ticket (por ejemplo, "nuevo").
-     * @param idUsuario      id del usuario que reporta.
-     * @param idDepartamento id del departamento asignado.
-     */
     public void registrarTicket(String asunto,
                                 String descripcion,
                                 String estado,
@@ -153,11 +115,6 @@ public class Gestor {
         dao.insertarTicket(t);
     }
 
-    /**
-     * Obtiene la lista de todos los tickets registrados.
-     *
-     * @return lista de {@link Ticket}.
-     */
     public List<Ticket> listarTickets() {
         return dao.listarTickets();
     }
@@ -166,32 +123,15 @@ public class Gestor {
     // DICCIONARIOS Y PALABRAS
     // =========================================================
 
-    /**
-     * Registra un nuevo diccionario.
-     *
-     * @param tipo tipo de diccionario (por ejemplo, "emocional" o "tecnico").
-     */
     public void registrarDiccionario(String tipo) {
         Diccionario d = new Diccionario(tipo);
         dao.insertarDiccionario(d);
     }
 
-    /**
-     * Lista todos los diccionarios existentes.
-     *
-     * @return lista de {@link Diccionario}.
-     */
     public List<Diccionario> listarDiccionarios() {
         return dao.listarDiccionarios();
     }
 
-    /**
-     * Agrega una nueva palabra a un diccionario existente.
-     *
-     * @param idDiccionario id del diccionario al que se agregará la palabra.
-     * @param texto         texto de la palabra.
-     * @param categoria     categoría o emoción asociada.
-     */
     public void agregarPalabraADiccionario(int idDiccionario,
                                            String texto,
                                            String categoria) {
@@ -200,13 +140,55 @@ public class Gestor {
         dao.insertarPalabra(p, idDiccionario);
     }
 
-    /**
-     * Lista todas las palabras asociadas a un diccionario.
-     *
-     * @param idDiccionario identificador del diccionario.
-     * @return lista de {@link Palabra}.
-     */
     public List<Palabra> listarPalabrasDeDiccionario(int idDiccionario) {
         return dao.listarPalabrasPorDiccionario(idDiccionario);
+    }
+
+    // =========================================================
+    // ANÁLISIS BAG OF WORDS (BoW)
+    // =========================================================
+
+    /**
+     * Ejecuta el análisis Bag of Words sobre la descripción de un ticket.
+     *
+     * @return arreglo [0] = estadoAnimo, [1] = categoriaTecnica.
+     */
+    public String[] analizarDescripcionTicket(String descripcion) {
+
+        // 1) Cargar todos los diccionarios
+        List<Diccionario> diccionarios = dao.listarDiccionarios();
+
+        Diccionario dicEmocional = null;
+        Diccionario dicTecnico   = null;
+
+        // 2) Identificar cuál es cuál según el campo "tipo"
+        for (Diccionario d : diccionarios) {
+            if ("emocional".equalsIgnoreCase(d.getTipo())) {
+                dicEmocional = d;
+            } else if ("tecnico".equalsIgnoreCase(d.getTipo())) {
+                dicTecnico = d;
+            }
+        }
+
+        // 3) Cargar las palabras desde la BD para cada diccionario
+        if (dicEmocional != null) {
+            List<Palabra> emoPalabras =
+                    dao.listarPalabrasPorDiccionario(dicEmocional.getId());
+            dicEmocional.setPalabras(emoPalabras);
+        }
+
+        if (dicTecnico != null) {
+            List<Palabra> tecPalabras =
+                    dao.listarPalabrasPorDiccionario(dicTecnico.getId());
+            dicTecnico.setPalabras(tecPalabras);
+        }
+
+        // 4) Crear el analizador BoW con los diccionarios cargados
+        AnalisisBow analizador = new AnalisisBow(dicTecnico, dicEmocional);
+
+        String estadoAnimo   = analizador.detectarEstadoAnimo(descripcion);
+        String categoriaTec  = analizador.sugerirCategoriaTecnica(descripcion);
+
+        return new String[]{estadoAnimo, categoriaTec};
     }
 }
