@@ -1,0 +1,167 @@
+@startuml
+title Modelo de Clases - Capa de Presentación (UI) HelpDesk U
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "ui" {
+
+  class IO {
+    - in : BufferedReader
+    --
+    + str(prompt : String) : String
+    + i(prompt : String) : int
+  }
+
+  class MenuAutenticacion {
+    - io : IO
+    - controller : Controller
+    - menuUsuario : MenuUsuario
+    --
+    + MenuAutenticacion(controller : Controller)
+    + iniciar() : boolean
+  }
+
+  class MenuUsuario {
+    - io : IO
+    - controller : Controller
+    --
+    + MenuUsuario(controller : Controller)
+    + mostrar() : void
+    - registrar() : void
+    - listar() : void
+    - actualizar() : void
+    - eliminar() : void
+  }
+
+  class MenuDepartamento {
+    - io : IO
+    - controller : Controller
+    --
+    + MenuDepartamento(controller : Controller)
+    + mostrar() : void
+    - registrar() : void
+    - listar() : void
+    - actualizar() : void
+    - eliminar() : void
+  }
+
+  class MenuDiccionario {
+    - io : IO
+    - controller : Controller
+    --
+    + MenuDiccionario(controller : Controller)
+    + mostrar() : void
+    - crearDiccionario() : void
+    - listarDiccionarios() : void
+    - actualizarDiccionario() : void
+    - eliminarDiccionario() : void
+    - agregarPalabra() : void
+    - listarPalabras() : void
+    - actualizarPalabra() : void
+    - eliminarPalabra() : void
+  }
+
+  class MenuTicket {
+    - io : IO
+    - controller : Controller
+    --
+    + MenuTicket(controller : Controller)
+    + mostrar() : void
+    - registrar() : void
+    - listar() : void
+    - analizar() : void
+  }
+
+  class MenuPrincipal {
+    - io : IO
+    - controller : Controller
+    - menuDepartamento : MenuDepartamento
+    - menuTicket : MenuTicket
+    - menuDiccionario : MenuDiccionario
+    --
+    + MenuPrincipal(controller : Controller)
+    + iniciar() : void
+  }
+
+  class Main {
+    + main(args : String[]) : void
+  }
+}
+
+package "tl" {
+
+  class Controller {
+    - gestor : Gestor
+    - usuarioActual : Usuario
+    --
+    + Controller()
+    + registrarUsuario(nombre, correo, pass, tel, rol) : boolean
+    + obtenerUsuariosComoTexto() : List<String>
+    + hayUsuarios() : boolean
+    + existeUsuario(id : int) : boolean
+    + actualizarUsuario(id, nombre, correo, pass, tel, rol) : boolean
+    + eliminarUsuario(id : int) : boolean
+    + iniciarSesion(correo : String, pass : String) : boolean
+    + getNombreUsuarioActual() : String
+    + registrarDepartamento(nombre, desc, contacto) : void
+    + obtenerDepartamentosComoTexto() : List<String>
+    + hayDepartamentos() : boolean
+    + existeDepartamento(id : int) : boolean
+    + actualizarDepartamento(id, nombre, desc, contacto) : boolean
+    + eliminarDepartamento(id : int) : boolean
+    + registrarTicket(titulo, desc, estado, idUsuario, idDepartamento) : void
+    + obtenerTicketsComoTexto() : List<String>
+    + obtenerTickets() : List<Ticket>
+    + crearDiccionario(tipo : String) : void
+    + obtenerDiccionariosComoTexto() : List<String>
+    + hayDiccionarios() : boolean
+    + existeDiccionario(id : int) : boolean
+    + actualizarDiccionario(idDiccionario, nuevoTipo : String) : boolean
+    + eliminarDiccionario(idDiccionario : int) : boolean
+    + agregarPalabraADiccionario(idDiccionario, texto, categoria) : boolean
+    + obtenerPalabrasDeDiccionarioComoTexto(idDiccionario : int) : List<String>
+    + actualizarPalabraEnDiccionario(idDiccionario, textoOriginal, nuevoTexto, nuevaCategoria) : boolean
+    + eliminarPalabraDeDiccionario(idDiccionario, texto : String) : boolean
+    + analizarDescripcionTicket(descripcion : String) : String[]
+    + analizarDescripcionTicketDetallado(descripcion : String) : String[]
+  }
+}
+
+' ============ Relaciones UI ============
+
+Main --> Controller : crea
+Main --> MenuAutenticacion : crea
+Main --> MenuPrincipal : crea (tras login exitoso)
+
+MenuAutenticacion --> IO : usa
+MenuAutenticacion --> Controller : usa
+MenuAutenticacion --> MenuUsuario : crea/usa
+
+MenuUsuario --> IO : usa
+MenuUsuario --> Controller : usa
+
+MenuDepartamento --> IO : usa
+MenuDepartamento --> Controller : usa
+
+MenuDiccionario --> IO : usa
+MenuDiccionario --> Controller : usa
+
+MenuTicket --> IO : usa
+MenuTicket --> Controller : usa
+
+MenuPrincipal --> IO : usa
+MenuPrincipal --> Controller : usa
+MenuPrincipal --> MenuDepartamento : contiene
+MenuPrincipal --> MenuTicket : contiene
+MenuPrincipal --> MenuDiccionario : contiene
+
+' Controller depende de la lógica y entidades (mostradas solo como nombres)
+Controller ..> Gestor
+Controller ..> Usuario
+Controller ..> Departamento
+Controller ..> Ticket
+Controller ..> Diccionario
+Controller ..> Palabra
+
+@enduml

@@ -1,56 +1,148 @@
 @startuml
-title Diagrama de Secuencia - Análisis Bag of Words (BoW)
+title Modelo de Clases - HelpDesk U (Dominio + Lógica + Datos)
 
-/'
- Solo objetos de negocio:
- Usuario, Gestor, AnalisisBoW, Diccionarios y Ticket.
- No se muestran clases de UI ni de arquitectura.
-'/
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
 
+package "Dominio" {
 
-actor Usuario
+  class Usuario {
+    - id : int
+    - nombre : String
+    - correo : String
+    - password : String
+    - telefono : String
+    - rol : String
+  }
 
-participant "Gestor" as G
-participant "AnalisisBoW" as BoW
-participant "Diccionario emocional" as DicE
-participant "Diccionario técnico" as DicT
-participant "Ticket" as T
+  class Departamento {
+    - id : int
+    - nombre : String
+    - descripcion : String
+    - correoContacto : String
+  }
 
-== Registro del ticket ==
+  class Ticket {
+    - id : int
+    - asunto : String
+    - descripcion : String
+    - estado : String
+    - usuario : Usuario
+    - departamento : Departamento
+  }
 
-Usuario -> G : registrarTicket(asunto, descripcion, estado,\n idUsuario, idDepartamento)
-activate G
+  class Diccionario {
+    - id : int
+    - tipo : String
+    - palabras : List<Palabra>
+  }
 
-' (internamente el Gestor crearía el Ticket; aquí simplificamos el foco en BoW)
+  class Palabra {
+    - texto : String
+    - categoria : String
+  }
+}
 
-== Preparación de análisis ==
+package "Lógica de negocio" {
 
-G -> DicE : obtenerPalabrasEmocionales()
-activate DicE
-DicE --> G : listaPalabrasEmocionales
-deactivate DicE
+  class Gestor {
+    - dao : HelpDeskDao
+    --
+    + registrarUsuario(nombre, correo, password, telefono, rol) : boolean
+    + listarUsuarios() : List<Usuario>
+    + registrarDepartamento(nombre, descripcion, correoContacto) : void
+    + listarDepartamentos() : List<Departamento>
+    + registrarTicket(asunto, descripcion, estado, idUsuario, idDepartamento) : void
+    + listarTickets() : List<Ticket>
+    + registrarDiccionario(tipo : String) : void
+    + listarDiccionarios() : List<Diccionario>
+    + agregarPalabraADiccionario(idDiccionario, texto, categoria) : boolean
+    + listarPalabrasDeDiccionario(idDiccionario) : List<Palabra>
+    + analizarDescripcionTicket(descripcion : String) : String[]
+    + analizarDescripcionTicketDetallado(descripcion : String) : String[]
+  }
 
-G -> DicT : obtenerPalabrasTecnicas()
-activate DicT
-DicT --> G : listaPalabrasTecnicas
-deactivate DicT
+  class AnalisisBow {
+    - tecnico : Diccionario
+    - emocional : Diccionario
+    --
+    + AnalisisBow(tecnico : Diccionario, emocional : Diccionario)
+    + normalizar(texto : String) : String
+    + tokenizar(texto : String) : String[]
+    + quitarStopwords(tokens : String[]) : List<String>
+    + vectorizarTFMap(texto : String) : Map<String,Integer>
+    + tfMapToString(tf : Map<String,Integer>) : String
+    + detectarEstadoAnimo(descripcion : String) : String
+    + sugerirCategoriaTecnica(descripcion : String) : String
+  }
 
-== Análisis de texto con BoW ==
+  class Stopwords {
+    {static} - DEFAULT : String[]
+    --
+    {static} + getDefault() : String[]
+    {static} + esStopword(palabra : String) : boolean
+  }
+}
 
-G -> BoW : analizar(descripcion,\n listaPalabrasEmocionales,\n listaPalabrasTecnicas)
-activate BoW
-BoW --> G : resultadoAnalisis
-deactivate BoW
+package "Capa de Datos" {
 
-== Actualización del ticket ==
+  class HelpDeskDao {
+    + insertarUsuario(u : Usuario) : void
+    + listarUsuarios() : List<Usuario>
+    + buscarUsuarioPorId(id : int) : Usuario
+    + buscarUsuarioPorCorreo(correo : String) : Usuario
+    + buscarUsuarioPorCredenciales(correo : String, passwordHash : String) : Usuario
+    + actualizarUsuario(u : Usuario) : void
+    + eliminarUsuario(idUsuario : int) : void
+    --
+    + insertarDepartamento(d : Departamento) : void
+    + listarDepartamentos() : List<Departamento>
+    + buscarDepartamentoPorId(id : int) : Departamento
+    + actualizarDepartamento(d : Departamento) : void
+    + eliminarDepartamento(idDepartamento : int) : void
+    --
+    + insertarTicket(t : Ticket) : void
+    + listarTickets() : List<Ticket>
+    + actualizarEstadoTicket(idTicket : int, nuevoEstado : String) : void
+    + eliminarTicket(idTicket : int) : void
+    --
+    + insertarDiccionario(d : Diccionario) : void
+    + listarDiccionarios() : List<Diccionario>
+    + buscarDiccionarioPorId(idDiccionario : int) : Diccionario
+    + actualizarDiccionario(d : Diccionario) : void
+    + eliminarDiccionario(idDiccionario : int) : void
+    --
+    + insertarPalabra(p : Palabra, idDiccionario : int) : void
+    + listarPalabrasPorDiccionario(idDiccionario : int) : List<Palabra>
+    + buscarPalabraEnDiccionario(idDiccionario : int, texto : String) : Palabra
+    + actualizarPalabraEnDiccionario(idDiccionario : int, textoOriginal : String, nuevoTexto : String, nuevaCategoria : String) : boolean
+    + eliminarPalabraDeDiccionario(idDiccionario : int, texto : String) : boolean
+  }
 
-G -> T : setClasificacion(resultadoAnalisis)
-activate T
-T --> G : confirmacion
-deactivate T
+  class ConexionSQLServer {
+    {static} + obtenerConexion() : Connection
+  }
+}
 
-G --> Usuario : informeResultado()
+'========================
+' Relaciones de dominio
+'========================
 
-deactivate G
+Ticket "1" o-- "1" Usuario : reporta >
+Ticket "1" o-- "1" Departamento : atiende >
+
+Diccionario "1" *-- "0..*" Palabra : contiene
+
+Gestor ..> Usuario
+Gestor ..> Departamento
+Gestor ..> Ticket
+Gestor ..> Diccionario
+Gestor ..> Palabra
+
+AnalisisBow ..> Diccionario : usa
+AnalisisBow ..> Stopwords : usa
+
+Gestor --> HelpDeskDao : usa
+HelpDeskDao --> ConexionSQLServer : obtiene conexión
 
 @enduml
