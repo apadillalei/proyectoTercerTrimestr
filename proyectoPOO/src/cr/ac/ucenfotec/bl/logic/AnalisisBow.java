@@ -107,6 +107,19 @@ public class AnalisisBow {
         return tf;
     }
 
+    /**
+     * Convierte un mapa TF en un texto tipo "palabra:frecuencia, ..."
+     */
+    public String tfMapToString(Map<String, Integer> tf) {
+        if (tf == null || tf.isEmpty()) return "";
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, Integer> e : tf.entrySet()) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(e.getKey()).append(":").append(e.getValue());
+        }
+        return sb.toString();
+    }
+
     // =========================
     //  BÚSQUEDA EN DICCIONARIOS
     // =========================

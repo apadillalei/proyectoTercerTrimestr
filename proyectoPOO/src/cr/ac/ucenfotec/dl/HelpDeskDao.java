@@ -12,10 +12,6 @@ import java.util.List;
 
 /**
  * DAO general del sistema HelpDesk U.
- *
- * Esta clase reemplaza el antiguo almacenamiento en memoria (Data)
- * y se encarga de realizar las operaciones CRUD contra la base de datos
- * SQL Server para las entidades de dominio.
  */
 public class HelpDeskDao {
 
@@ -23,9 +19,6 @@ public class HelpDeskDao {
     // USUARIOS
     // =========================================================
 
-    /**
-     * Inserta un nuevo usuario en la base de datos.
-     */
     public void insertarUsuario(Usuario u) {
         String sql = "INSERT INTO Usuarios (nombre, correo, password, telefono, rol) " +
                 "VALUES (?, ?, ?, ?, ?)";
@@ -38,16 +31,12 @@ public class HelpDeskDao {
             ps.setString(3, u.getPassword());
             ps.setString(4, u.getTelefono());
             ps.setString(5, u.getRol());
-
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * Obtiene todos los usuarios registrados.
-     */
     public List<Usuario> listarUsuarios() {
         List<Usuario> lista = new ArrayList<>();
 
@@ -76,9 +65,6 @@ public class HelpDeskDao {
         return lista;
     }
 
-    /**
-     * Busca un usuario por su id.
-     */
     public Usuario buscarUsuarioPorId(int id) {
         String sql = "SELECT idUsuario, nombre, correo, password, telefono, rol " +
                 "FROM Usuarios WHERE idUsuario = ?";
@@ -107,18 +93,16 @@ public class HelpDeskDao {
         return null;
     }
 
-    /**
-     * Busca un usuario utilizando sus credenciales de acceso (login).
-     */
-    public Usuario buscarUsuarioPorCredenciales(String correo, String password) {
-        String sql = "SELECT idUsuario, nombre, correo, password, telefono, rol " +
-                "FROM Usuarios WHERE correo = ? AND password = ?";
+    public Usuario buscarUsuarioPorCredenciales(String correo, String passwordHasheado) {
+
+        String sql = "SELECT idUsuario, nombre, correo, password, telefono, rol "
+                + "FROM Usuarios WHERE correo = ? AND password = ?";
 
         try (Connection conn = ConexionSQLServer.obtenerConexion();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, correo);
-            ps.setString(2, password);
+            ps.setString(1, correo.trim());
+            ps.setString(2, passwordHasheado.trim());
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -139,9 +123,7 @@ public class HelpDeskDao {
         return null;
     }
 
-    /**
-     * Busca un usuario solo por su correo (validar duplicados).
-     */
+
     public Usuario buscarUsuarioPorCorreo(String correo) {
         String sql = "SELECT idUsuario, nombre, correo, password, telefono, rol " +
                 "FROM Usuarios WHERE correo = ?";
@@ -170,9 +152,6 @@ public class HelpDeskDao {
         return null;
     }
 
-    /**
-     * Actualiza los datos de un usuario.
-     */
     public void actualizarUsuario(Usuario u) {
         String sql = "UPDATE Usuarios " +
                 "SET nombre = ?, correo = ?, password = ?, telefono = ?, rol = ? " +
@@ -194,9 +173,6 @@ public class HelpDeskDao {
         }
     }
 
-    /**
-     * Elimina un usuario por su id.
-     */
     public void eliminarUsuario(int idUsuario) {
         String sql = "DELETE FROM Usuarios WHERE idUsuario = ?";
 
@@ -455,6 +431,63 @@ public class HelpDeskDao {
         return lista;
     }
 
+    public Diccionario buscarDiccionarioPorId(int idDiccionario) {
+        String sql = "SELECT idDiccionario, tipo FROM Diccionarios WHERE idDiccionario = ?";
+
+        try (Connection conn = ConexionSQLServer.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, idDiccionario);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Diccionario d = new Diccionario(rs.getString("tipo"));
+                    d.setId(rs.getInt("idDiccionario"));
+                    return d;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public void actualizarDiccionario(Diccionario d) {
+        String sql = "UPDATE Diccionarios SET tipo = ? WHERE idDiccionario = ?";
+
+        try (Connection conn = ConexionSQLServer.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, d.getTipo());
+            ps.setInt(2, d.getId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void eliminarDiccionario(int idDiccionario) {
+        // Primero borramos sus palabras (si no hay ON DELETE CASCADE)
+        String sqlPalabras = "DELETE FROM Palabras WHERE idDiccionario = ?";
+        String sqlDic      = "DELETE FROM Diccionarios WHERE idDiccionario = ?";
+
+        try (Connection conn = ConexionSQLServer.obtenerConexion()) {
+
+            try (PreparedStatement psP = conn.prepareStatement(sqlPalabras)) {
+                psP.setInt(1, idDiccionario);
+                psP.executeUpdate();
+            }
+
+            try (PreparedStatement psD = conn.prepareStatement(sqlDic)) {
+                psD.setInt(1, idDiccionario);
+                psD.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     // =========================================================
     // PALABRAS
     // =========================================================
@@ -500,5 +533,71 @@ public class HelpDeskDao {
         }
 
         return lista;
+    }
+
+    public Palabra buscarPalabraEnDiccionario(int idDiccionario, String texto) {
+        String sql = "SELECT texto, categoria FROM Palabras " +
+                "WHERE idDiccionario = ? AND texto = ?";
+
+        try (Connection conn = ConexionSQLServer.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, idDiccionario);
+            ps.setString(2, texto);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Palabra(
+                            rs.getString("texto"),
+                            rs.getString("categoria")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public boolean actualizarPalabraEnDiccionario(int idDiccionario,
+                                                  String textoOriginal,
+                                                  String nuevoTexto,
+                                                  String nuevaCategoria) {
+
+        String sql = "UPDATE Palabras " +
+                "SET texto = ?, categoria = ? " +
+                "WHERE idDiccionario = ? AND texto = ?";
+
+        try (Connection conn = ConexionSQLServer.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, nuevoTexto);
+            ps.setString(2, nuevaCategoria);
+            ps.setInt(3, idDiccionario);
+            ps.setString(4, textoOriginal);
+
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean eliminarPalabraDeDiccionario(int idDiccionario, String texto) {
+        String sql = "DELETE FROM Palabras WHERE idDiccionario = ? AND texto = ?";
+
+        try (Connection conn = ConexionSQLServer.obtenerConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, idDiccionario);
+            ps.setString(2, texto);
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
