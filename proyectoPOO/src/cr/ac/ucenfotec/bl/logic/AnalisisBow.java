@@ -10,22 +10,24 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Implementa el análisis Bag of Words (BoW) para:
- *  - Detectar estado de ánimo (diccionario emocional)
- *  - Sugerir categoría técnica (diccionario técnico)
+ * Clase de apoyo para análisis de texto mediante un enfoque Bag of Words (BoW)
+ * utilizando diccionarios técnicos y emocionales.
  *
- * Trabaja sobre las entidades del proyecto:
- *  {@link Diccionario} y {@link Palabra}.
+ * <p>Permite normalizar texto, generar mapas de frecuencias y sugerir
+ * estado de ánimo y categoría técnica a partir de los diccionarios
+ * configurados.</p>
  */
 public class AnalisisBow {
 
+    /** Diccionario técnico utilizado para sugerir categorías técnicas. */
     private Diccionario tecnico;
+
+    /** Diccionario emocional utilizado para estimar estado de ánimo. */
     private Diccionario emocional;
 
     /**
-     * Crea el analizador recibiendo los diccionarios
-     * necesarios. El tipo de diccionario se define
-     * por el campo {@code tipo} (ej: "emocional", "tecnico").
+     * Crea una nueva instancia de {@code AnalisisBow} con los diccionarios
+     * necesarios para el análisis.
      *
      * @param tecnico   diccionario técnico
      * @param emocional diccionario emocional
@@ -35,33 +37,35 @@ public class AnalisisBow {
         this.emocional = emocional;
     }
 
-    // =========================
-    //  PREPROCESAMIENTO
-    // =========================
-
     /**
-     * Normaliza un texto:
-     *  - a minúsculas
-     *  - sin tildes
-     *  - sin signos raros
+     * Normaliza un texto aplicando:
+     * <ul>
+     *     <li>Conversión a minúsculas</li>
+     *     <li>Eliminación de tildes</li>
+     *     <li>Eliminación de símbolos no alfanuméricos</li>
+     *     <li>Compactación de espacios</li>
+     * </ul>
+     *
+     * @param texto texto original
+     * @return texto normalizado o cadena vacía si el texto es {@code null}
      */
     public String normalizar(String texto) {
         if (texto == null) return "";
 
         String s = texto.toLowerCase();
-        // Quitar tildes
         s = Normalizer.normalize(s, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "");
-        // Quitar símbolos, dejar letras/números/espacios
         s = s.replaceAll("[^a-z0-9\\s]", " ");
-        // Compactar espacios
         s = s.replaceAll("\\s+", " ").trim();
 
         return s;
     }
 
     /**
-     * Separa el texto en palabras usando espacios.
+     * Divide el texto en tokens separados por espacios.
+     *
+     * @param texto texto a tokenizar
+     * @return arreglo de tokens o arreglo vacío si el texto es nulo o vacío
      */
     public String[] tokenizar(String texto) {
         if (texto == null || texto.isEmpty()) return new String[0];
@@ -69,7 +73,10 @@ public class AnalisisBow {
     }
 
     /**
-     * Elimina las stopwords usando la clase Stopwords.
+     * Elimina las palabras vacías (stopwords) de un arreglo de tokens.
+     *
+     * @param tokens arreglo de palabras
+     * @return lista de tokens filtrados
      */
     public List<String> quitarStopwords(String[] tokens) {
         List<String> resultado = new ArrayList<>();
@@ -84,10 +91,10 @@ public class AnalisisBow {
     }
 
     /**
-     * Construye el mapa de frecuencias (TF) de un texto.
+     * Construye un mapa de frecuencias (TF) a partir de un texto.
      *
-     * @param texto descripción del ticket
-     * @return mapa palabra -> cantidad de apariciones
+     * @param texto texto a procesar
+     * @return mapa palabra -&gt; cantidad de apariciones
      */
     public Map<String, Integer> vectorizarTFMap(String texto) {
         Map<String, Integer> tf = new HashMap<>();
@@ -108,7 +115,11 @@ public class AnalisisBow {
     }
 
     /**
-     * Convierte un mapa TF en un texto tipo "palabra:frecuencia, ..."
+     * Convierte un mapa de frecuencias en una representación textual
+     * con el formato {@code palabra:frecuencia}, separados por coma.
+     *
+     * @param tf mapa de frecuencias
+     * @return representación textual del mapa o cadena vacía si el mapa está vacío
      */
     public String tfMapToString(Map<String, Integer> tf) {
         if (tf == null || tf.isEmpty()) return "";
@@ -120,17 +131,12 @@ public class AnalisisBow {
         return sb.toString();
     }
 
-    // =========================
-    //  BÚSQUEDA EN DICCIONARIOS
-    // =========================
-
     /**
-     * Busca la categoría asociada a una palabra dentro
-     * de un diccionario (emocional o técnico).
+     * Busca la categoría asociada a un término dentro de un diccionario.
      *
-     * @param diccionario diccionario a usar
-     * @param termino     palabra normalizada
-     * @return categoría (ej: "Frustracion", "Impresoras") o null si no hay coincidencia
+     * @param diccionario diccionario a consultar
+     * @param termino     término normalizado a buscar
+     * @return categoría asociada o {@code null} si no hay coincidencias
      */
     private String buscarEnDiccionario(Diccionario diccionario, String termino) {
         if (diccionario == null || diccionario.getPalabras() == null) return null;
@@ -144,18 +150,12 @@ public class AnalisisBow {
         return null;
     }
 
-    // =========================
-    //  ESTADO DE ÁNIMO
-    // =========================
-
     /**
-     * Detecta el estado de ánimo predominante en la descripción
-     * usando el diccionario emocional.
+     * Determina el estado de ánimo predominante en una descripción utilizando
+     * el diccionario emocional.
      *
-     * Ejemplo de categorías: "Frustracion", "Urgencia", "Positivo".
-     *
-     * @param descripcion texto del ticket
-     * @return emoción predominante o "Neutralidad" si no hay coincidencias
+     * @param descripcion texto a analizar
+     * @return emoción predominante o {@code "Neutralidad"} si no hay coincidencias
      */
     public String detectarEstadoAnimo(String descripcion) {
         if (descripcion == null || descripcion.isBlank() || emocional == null) {
@@ -163,7 +163,6 @@ public class AnalisisBow {
         }
 
         Map<String, Integer> tf = vectorizarTFMap(descripcion);
-        // emoción -> puntaje
         Map<String, Integer> puntaje = new HashMap<>();
 
         for (Map.Entry<String, Integer> entry : tf.entrySet()) {
@@ -180,7 +179,6 @@ public class AnalisisBow {
             }
         }
 
-        // Buscar la emoción con mayor puntaje
         String mejorEmocion = "Neutralidad";
         int mejorPuntaje = 0;
 
@@ -194,18 +192,12 @@ public class AnalisisBow {
         return mejorEmocion;
     }
 
-    // =========================
-    //  CATEGORÍA TÉCNICA
-    // =========================
-
     /**
-     * Sugiere la categoría técnica predominante según el
-     * diccionario técnico.
+     * Sugiere la categoría técnica predominante en una descripción utilizando
+     * el diccionario técnico.
      *
-     * Ejemplos de categorías: "Impresoras", "Redes", "Cuentas".
-     *
-     * @param descripcion texto del ticket
-     * @return categoría técnica sugerida o "General" si no hay coincidencias
+     * @param descripcion texto a analizar
+     * @return categoría técnica sugerida o {@code "General"} si no hay coincidencias
      */
     public String sugerirCategoriaTecnica(String descripcion) {
         if (descripcion == null || descripcion.isBlank() || tecnico == null) {

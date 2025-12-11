@@ -1,12 +1,12 @@
 package cr.ac.ucenfotec.bl.logic;
 
 /**
- * Lista de stopwords (palabras vacías) en español
- * usadas por el análisis Bag of Words.
+ * Proporciona una lista básica de palabras vacías (stopwords) en español,
+ * utilizadas durante el análisis de texto para el enfoque Bag of Words.
  */
 public class Stopwords {
 
-    // Arreglo básico, sin Set ni cosas raras
+    /** Arreglo de stopwords por defecto. */
     private static final String[] DEFAULT = {
             "a","al","algo","algunas","algunos","ante","antes","como","con","contra",
             "cual","cuando","de","del","desde","donde","el","ella","ellas","ellos",
@@ -17,17 +17,19 @@ public class Stopwords {
     };
 
     /**
-     * Devuelve el arreglo de stopwords por defecto.
+     * Obtiene el arreglo de stopwords por defecto.
+     *
+     * @return arreglo con las palabras vacías
      */
     public static String[] getDefault() {
         return DEFAULT;
     }
 
     /**
-     * Indica si una palabra está en la lista de stopwords.
+     * Determina si una palabra pertenece a la lista de stopwords.
      *
-     * @param palabra palabra normalizada
-     * @return true si es stopword, false en caso contrario
+     * @param palabra palabra previamente normalizada
+     * @return {@code true} si la palabra es una stopword; {@code false} en caso contrario
      */
     public static boolean esStopword(String palabra) {
         if (palabra == null || palabra.isEmpty()) return false;

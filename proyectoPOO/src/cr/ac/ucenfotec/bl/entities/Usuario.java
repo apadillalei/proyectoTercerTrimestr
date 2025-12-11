@@ -1,46 +1,44 @@
 package cr.ac.ucenfotec.bl.entities;
 
 /**
- * Representa un usuario dentro del sistema HelpDesk U.
- * <p>
- * Un usuario puede generar tickets, iniciar sesión y estar asociado a un rol
- * dentro de la institución (por ejemplo: estudiante, administrativo o soporte técnico).
- * Esta clase modela únicamente los datos básicos del usuario.
- * </p>
+ * Representa un usuario dentro del sistema. Un usuario puede generar tickets
+ * y posee información básica como nombre, correo, contraseña, teléfono y rol.
  */
 public class Usuario {
 
     /** Identificador único del usuario dentro del sistema. */
     private int id;
+
     /** Nombre completo del usuario. */
     private String nombre;
-    /** Correo electrónico institucional o de contacto. */
+
+    /** Correo electrónico del usuario. */
     private String correo;
-    /** Contraseña de acceso al sistema (en este avance, sin cifrar). */
+
+    /** Contraseña de acceso al sistema. */
     private String password;
-    /** Número de teléfono del usuario. */
+
+    /** Número telefónico del usuario. */
     private String telefono;
-    /** Rol del usuario dentro del sistema (Estudiante, Admin, Soporte, etc.). */
+
+    /** Rol asignado dentro del sistema. */
     private String rol;
 
     /**
-     * Constructor vacío requerido para compatibilidad y para posibles usos
-     * futuros de frameworks o serialización.
+     * Constructor vacío para compatibilidad con procesos de serialización
+     * u otros usos donde se requiera una instancia sin inicializar.
      */
     public Usuario() {
     }
 
     /**
-     * Constructor para crear un usuario sin id asignado.
-     * <p>
-     * El id será asignado por la capa de lógica ({@code Gestor}) al momento
-     * de registrarlo en el sistema.
-     * </p>
+     * Crea un usuario sin un id asignado. El identificador será definido por
+     * la capa de lógica al momento del registro.
      *
      * @param nombre   nombre completo del usuario
-     * @param correo   correo electrónico
+     * @param correo   correo electrónico del usuario
      * @param password contraseña de acceso
-     * @param telefono número de teléfono
+     * @param telefono número telefónico
      * @param rol      rol dentro del sistema
      */
     public Usuario(String nombre, String correo, String password, String telefono, String rol) {
@@ -52,16 +50,17 @@ public class Usuario {
     }
 
     /**
-     * Constructor para crear un usuario con id ya definido.
+     * Crea un usuario con un identificador ya definido.
      *
      * @param id       identificador único del usuario
-     * @param nombre   nombre completo
+     * @param nombre   nombre completo del usuario
      * @param correo   correo electrónico
-     * @param password contraseña
+     * @param password contraseña de acceso
      * @param telefono número telefónico
      * @param rol      rol dentro del sistema
      */
-    public Usuario(int id, String nombre, String correo, String password, String telefono, String rol) {
+    public Usuario(int id, String nombre, String correo, String password,
+                   String telefono, String rol) {
         this.id = id;
         this.nombre = nombre;
         this.correo = correo;
@@ -81,19 +80,15 @@ public class Usuario {
 
     /**
      * Asigna el identificador único del usuario.
-     * <p>
-     * Este método debería ser usado únicamente por la capa de lógica
-     * (por ejemplo, {@code Gestor}).
-     * </p>
      *
-     * @param id nuevo identificador del usuario
+     * @param id identificador a asignar
      */
     public void setId(int id) {
         this.id = id;
     }
 
     /**
-     * Obtiene el nombre del usuario.
+     * Obtiene el nombre completo del usuario.
      *
      * @return nombre completo
      */
@@ -102,7 +97,7 @@ public class Usuario {
     }
 
     /**
-     * Modifica el nombre del usuario.
+     * Modifica el nombre completo del usuario.
      *
      * @param nombre nuevo nombre completo
      */
@@ -129,9 +124,9 @@ public class Usuario {
     }
 
     /**
-     * Obtiene la contraseña actual del usuario.
+     * Obtiene la contraseña del usuario.
      *
-     * @return contraseña en texto plano
+     * @return contraseña del usuario
      */
     public String getPassword() {
         return password;
@@ -149,7 +144,7 @@ public class Usuario {
     /**
      * Obtiene el número telefónico del usuario.
      *
-     * @return teléfono
+     * @return número telefónico
      */
     public String getTelefono() {
         return telefono;
@@ -158,7 +153,7 @@ public class Usuario {
     /**
      * Modifica el número telefónico del usuario.
      *
-     * @param telefono nuevo teléfono
+     * @param telefono nuevo número telefónico
      */
     public void setTelefono(String telefono) {
         this.telefono = telefono;
@@ -167,7 +162,7 @@ public class Usuario {
     /**
      * Obtiene el rol del usuario dentro del sistema.
      *
-     * @return rol actual
+     * @return rol del usuario
      */
     public String getRol() {
         return rol;
@@ -183,10 +178,9 @@ public class Usuario {
     }
 
     /**
-     * Devuelve una representación textual del usuario,
-     * útil para listados en consola.
+     * Devuelve una representación textual del usuario.
      *
-     * @return cadena con id, nombre, correo y rol.
+     * @return cadena con id, nombre, correo y rol
      */
     @Override
     public String toString() {
@@ -197,6 +191,13 @@ public class Usuario {
                 '}';
     }
 
+    /**
+     * Compara este usuario con otro objeto. Dos usuarios se consideran iguales
+     * si comparten el mismo identificador.
+     *
+     * @param obj objeto a comparar
+     * @return {@code true} si ambos usuarios tienen el mismo id; {@code false} de lo contrario
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -205,9 +206,13 @@ public class Usuario {
         return this.id == other.id;
     }
 
+    /**
+     * Calcula el código hash del usuario basado en su identificador.
+     *
+     * @return valor hash del usuario
+     */
     @Override
     public int hashCode() {
         return Integer.hashCode(id);
     }
-
 }

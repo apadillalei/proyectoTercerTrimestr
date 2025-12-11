@@ -1,44 +1,42 @@
 package cr.ac.ucenfotec.bl.entities;
 
 /**
- * Representa un ticket de soporte dentro del sistema HelpDesk U.
- * <p>
- * Cada ticket contiene un asunto, una descripción, un estado y referencias
- * al usuario que reporta la incidencia y al departamento encargado de atenderla.
- * El identificador del ticket se asigna automáticamente mediante un contador
- * estático en memoria.
- * </p>
+ * Representa un ticket de soporte dentro del sistema. Cada ticket contiene
+ * un asunto, una descripción, un estado y referencias al usuario que lo
+ * reporta y al departamento encargado de atenderlo.
  */
 public class Ticket {
 
-    /** Contador estático para asignar IDs incrementales a cada ticket. */
+    /** Contador estático utilizado para asignar identificadores incrementales. */
     private static int SEQ = 1;
 
     /** Identificador único del ticket. */
     private int id;
-    /** Asunto o título breve del ticket. */
+
+    /** Asunto del ticket. */
     private String asunto;
+
     /** Descripción detallada de la incidencia o solicitud. */
     private String descripcion;
-    /** Estado actual del ticket (por ejemplo: Nuevo, En proceso, Cerrado). */
+
+    /** Estado actual del ticket. */
     private String estado;
+
     /** Usuario que generó el ticket. */
     private Usuario usuario;
-    /** Departamento responsable de atender el ticket. */
+
+    /** Departamento asignado para atender el ticket. */
     private Departamento departamento;
 
     /**
-     * Constructor principal del ticket.
-     * <p>
-     * El identificador se asigna automáticamente usando el contador estático
-     * {@code SEQ}, simulando una llave primaria autoincremental en memoria.
-     * </p>
+     * Crea una nueva instancia de {@code Ticket}. El identificador se asigna
+     * automáticamente utilizando un contador estático.
      *
      * @param asunto       asunto del ticket
-     * @param descripcion  descripción del problema o solicitud
+     * @param descripcion  descripción de la incidencia o solicitud
      * @param estado       estado inicial del ticket
-     * @param usuario      usuario que reporta la incidencia
-     * @param departamento departamento asignado
+     * @param usuario      usuario que reporta el ticket
+     * @param departamento departamento encargado de atenderlo
      */
     public Ticket(String asunto, String descripcion, String estado,
                   Usuario usuario, Departamento departamento) {
@@ -51,7 +49,7 @@ public class Ticket {
     }
 
     /**
-     * Obtiene el identificador único del ticket.
+     * Obtiene el identificador del ticket.
      *
      * @return id del ticket
      */
@@ -62,7 +60,7 @@ public class Ticket {
     /**
      * Obtiene el asunto del ticket.
      *
-     * @return asunto
+     * @return asunto del ticket
      */
     public String getAsunto() {
         return asunto;
@@ -71,7 +69,7 @@ public class Ticket {
     /**
      * Obtiene la descripción del ticket.
      *
-     * @return descripción
+     * @return descripción del ticket
      */
     public String getDescripcion() {
         return descripcion;
@@ -80,7 +78,7 @@ public class Ticket {
     /**
      * Obtiene el estado actual del ticket.
      *
-     * @return estado (Nuevo, En proceso, Cerrado, etc.)
+     * @return estado del ticket
      */
     public String getEstado() {
         return estado;
@@ -89,7 +87,7 @@ public class Ticket {
     /**
      * Obtiene el usuario que generó el ticket.
      *
-     * @return usuario asociado
+     * @return usuario asociado al ticket
      */
     public Usuario getUsuario() {
         return usuario;
@@ -98,7 +96,7 @@ public class Ticket {
     /**
      * Obtiene el departamento asignado al ticket.
      *
-     * @return departamento asociado
+     * @return departamento asignado
      */
     public Departamento getDepartamento() {
         return departamento;
@@ -114,9 +112,9 @@ public class Ticket {
     }
 
     /**
-     * Devuelve una representación textual del ticket para su uso en listados de consola.
+     * Devuelve una representación textual del ticket.
      *
-     * @return cadena con id, asunto, estado, correo del usuario y nombre del departamento.
+     * @return cadena que incluye id, asunto, estado, usuario y departamento
      */
     @Override
     public String toString() {
@@ -127,6 +125,14 @@ public class Ticket {
                 ", depto=" + (departamento == null ? "-" : departamento.getNombre()) +
                 '}';
     }
+
+    /**
+     * Compara este ticket con otro objeto. Dos tickets se consideran iguales
+     * si comparten el mismo identificador.
+     *
+     * @param obj objeto a comparar
+     * @return {@code true} si ambos tickets tienen el mismo id; {@code false} en caso contrario
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -135,9 +141,13 @@ public class Ticket {
         return this.id == other.id;
     }
 
+    /**
+     * Calcula el código hash del ticket basado en su identificador.
+     *
+     * @return valor hash del ticket
+     */
     @Override
     public int hashCode() {
         return Integer.hashCode(id);
     }
-
 }
