@@ -1,3 +1,21 @@
 # proyectoTercerTrimestr
-Proyecto de Prgramacion Orientada a Objetos
-Este repositorio contiene toda la capa de dominio y la lógica del sistema HelpDesk U. Aquí se encuentran las clases que representan las entidades principales del modelo —Usuario, Departamento, Ticket, Diccionario y Palabra— junto con la clase Data, responsable del almacenamiento en memoria, y la clase Gestor, que implementa las reglas del negocio y coordina el ciclo de vida de los objetos. También incluye las pruebas unitarias (test-cases) y el JavaDoc generado para la documentación formal. Este repositorio es completamente independiente de la interfaz de usuario y expone un .jar que puede ser utilizado por cualquier aplicación que requiera sus funcionalidades.
+Este repositorio contiene la capa de dominio y la lógica central del sistema HelpDesk U. Aquí se encuentran las clases que modelan las entidades principales del proyecto, así como los componentes encargados de gestionar su ciclo de vida y reglas de negocio.
+Contenido del Proyecto
+Dominio
+Incluye las clases fundamentales del modelo:
+Usuario
+Departamento
+Ticket
+Diccionario
+Palabra
+Estas clases representan las entidades principales del sistema y definen su comportamiento.
+Lógica y Gestión
+Data: Responsable del almacenamiento en memoria, manejando las colecciones internas de objetos.
+Gestor: Implementa las reglas de negocio del sistema y coordina la creación, actualización y gestión de todas las entidades.
+Pruebas Unitarias
+El repositorio incluye un conjunto de test cases que validan el funcionamiento de la capa de dominio y aseguran la integridad del modelo.
+Documentación (JavaDoc)
+Se genera JavaDoc para facilitar la comprensión del código, su estructura y las responsabilidades de cada clase.
+Integración
+Este módulo es independiente de cualquier interfaz gráfica o API.
+Expone un archivo .jar que puede ser utilizado por cualquier aplicación que necesite las funcionalidades del dominio y la lógica del HelpDesk U.
