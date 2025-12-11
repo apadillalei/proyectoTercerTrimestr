@@ -1,21 +1,2 @@
 # proyectoTercerTrimestr
-Este repositorio contiene la capa de dominio y la lógica central del sistema HelpDesk U. Aquí se encuentran las clases que modelan las entidades principales del proyecto, así como los componentes encargados de gestionar su ciclo de vida y reglas de negocio.
-Contenido del Proyecto
-Dominio
-Incluye las clases fundamentales del modelo:
-Usuario
-Departamento
-Ticket
-Diccionario
-Palabra
-Estas clases representan las entidades principales del sistema y definen su comportamiento.
-Lógica y Gestión
-Data: Responsable del almacenamiento en memoria, manejando las colecciones internas de objetos.
-Gestor: Implementa las reglas de negocio del sistema y coordina la creación, actualización y gestión de todas las entidades.
-Pruebas Unitarias
-El repositorio incluye un conjunto de test cases que validan el funcionamiento de la capa de dominio y aseguran la integridad del modelo.
-Documentación (JavaDoc)
-Se genera JavaDoc para facilitar la comprensión del código, su estructura y las responsabilidades de cada clase.
-Integración
-Este módulo es independiente de cualquier interfaz gráfica o API.
-Expone un archivo .jar que puede ser utilizado por cualquier aplicación que necesite las funcionalidades del dominio y la lógica del HelpDesk U.
+Este repositorio contiene la capa de dominio y la lógica central del sistema HelpDesk U. En él se incluyen todas las clases que representan las entidades principales del modelo, entre ellas Usuario, Departamento, Ticket, Diccionario y Palabra. Estas clases definen la estructura, atributos y comportamientos esenciales que permiten modelar correctamente los elementos fundamentales del sistema. Además, el repositorio incorpora la clase Data, encargada de administrar el almacenamiento en memoria y gestionar las colecciones de objetos que utiliza la aplicación, y la clase Gestor, que implementa las reglas de negocio, coordina el flujo del sistema y maneja el ciclo de vida de cada entidad dentro del modelo. También se encuentran incluidas las pruebas unitarias que validan el correcto funcionamiento de la capa de dominio y garantizan la integridad del comportamiento del sistema ante distintos escenarios. Asimismo, se incluye la documentación generada mediante JavaDoc, la cual describe de forma formal y estructurada la funcionalidad de cada clase, sus métodos, y las relaciones entre los componentes. Es importante destacar que este módulo es completamente independiente de cualquier tipo de interfaz gráfica o API, ya que su propósito es funcionar como el núcleo lógico del sistema. Para ello, el repositorio expone un archivo .jar que puede ser utilizado por cualquier aplicación externa que requiera estas funcionalidades, permitiendo así que la lógica de dominio del HelpDesk U sea reutilizable, escalable y fácilmente integrable en distintos proyectos o capas de presentación.
